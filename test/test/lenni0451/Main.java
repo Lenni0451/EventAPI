@@ -3,8 +3,6 @@ package test.lenni0451;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 
-import javax.management.RuntimeErrorException;
-
 import net.lenni0451.eventapi.EventManager;
 import net.lenni0451.eventapi.events.IEvent;
 import net.lenni0451.eventapi.events.premade.EventCancellable;
