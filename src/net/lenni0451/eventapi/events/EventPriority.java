@@ -1,22 +1,11 @@
 package net.lenni0451.eventapi.events;
 
-public enum EventPriority {
+public class EventPriority {
 	
-	LOWEST(0),
-	LOW(1),
-	MEDIUM(2),
-	HIGH(3),
-	HIGHEST(4);
-	
-	
-	private final int level;
-	
-	private EventPriority(final int level) {
-		this.level = level;
-	}
-	
-	public int getLevel() {
-		return this.level;
-	}
+	public static final byte LOWEST = 0;
+	public static final byte LOW = 1;
+	public static final byte MEDIUM = 2;
+	public static final byte HIGH = 3;
+	public static final byte HIGHEST = 4;
 	
 }

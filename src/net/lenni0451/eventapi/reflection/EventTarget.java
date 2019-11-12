@@ -12,6 +12,6 @@ import net.lenni0451.eventapi.events.EventPriority;
 @Target(METHOD)
 public @interface EventTarget {
 	
-	EventPriority priority() default EventPriority.MEDIUM;
+	byte priority() default EventPriority.MEDIUM;
 	
 }

@@ -1,12 +1,12 @@
-package net.lenni0451.eventapi;
+package net.lenni0451.eventapi.manager;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.lenni0451.eventapi.events.EventPriority;
@@ -19,7 +19,7 @@ import net.lenni0451.eventapi.reflection.ReflectedEventListener;
 
 public class EventManager {
 	
-	private static final Map<Class<? extends IEvent>, List<EventExecutor>> EVENT_LISTENER = new HashMap<>();
+	private static final Map<Class<? extends IEvent>, List<EventExecutor>> EVENT_LISTENER = new ConcurrentHashMap<>();
 	private static final List<IErrorListener> ERROR_LISTENER = new CopyOnWriteArrayList<>();
 	
 	public static void call(final IEvent event) {
@@ -27,7 +27,7 @@ public class EventManager {
 		
 		List<EventExecutor> eventListener = new ArrayList<>();
 		if(EVENT_LISTENER.containsKey(event.getClass())) eventListener.addAll(EVENT_LISTENER.get(event.getClass()));
-		if(EVENT_LISTENER.containsKey(null)) eventListener.addAll(EVENT_LISTENER.get(null));
+		if(EVENT_LISTENER.containsKey(IEvent.class)) eventListener.addAll(EVENT_LISTENER.get(IEvent.class));
 
 		for(EventExecutor listener : eventListener) {
 			try {
@@ -47,21 +47,23 @@ public class EventManager {
 
 	
 	public static <T extends IEventListener> void register(final T listener) {
-		register(null, EventPriority.MEDIUM, listener);
+		register(IEvent.class, EventPriority.MEDIUM, listener);
 	}
 	
 	public static void register(final Object listener) {
 		for(Method method : listener.getClass().getMethods()) {
-			EventTarget anno = method.getDeclaredAnnotation(EventTarget.class);
-			if(anno != null) {
-				Class<?>[] methodArguments = method.getParameterTypes();
-				if(methodArguments.length == 1 && IEvent.class.isAssignableFrom(methodArguments[0])) {
-					ReflectedEventListener eventListener = new ReflectedEventListener(listener, methodArguments[0], method);
-					if(methodArguments[0].equals(IEvent.class)) {
-						register(anno.priority(), eventListener);
-					} else {
-						register((Class<? extends IEvent>) methodArguments[0], anno.priority(), eventListener);
-					}
+			if(!method.isAnnotationPresent(EventTarget.class)) {
+				continue;
+			}
+		
+			EventTarget anno = method.getAnnotation(EventTarget.class);
+			Class<?>[] methodArguments = method.getParameterTypes();
+			if(methodArguments.length == 1 && IEvent.class.isAssignableFrom(methodArguments[0])) {
+				ReflectedEventListener eventListener = new ReflectedEventListener(listener, methodArguments[0], method);
+				if(methodArguments[0].equals(IEvent.class)) {
+					register(anno.priority(), eventListener);
+				} else {
+					register((Class<? extends IEvent>) methodArguments[0], anno.priority(), eventListener);
 				}
 			}
 		}
@@ -71,11 +73,11 @@ public class EventManager {
 		register(eventType, EventPriority.MEDIUM, listener);
 	}
 
-	public static <T extends IEventListener> void register(final EventPriority eventPriority, final T listener) {
-		register(null, eventPriority, listener);
+	public static <T extends IEventListener> void register(final byte eventPriority, final T listener) {
+		register(IEvent.class, eventPriority, listener);
 	}
 	
-	public static <T extends IEventListener> void register(final Class<? extends IEvent> eventType, final EventPriority eventPriority, final T listener) {
+	public static <T extends IEventListener> void register(final Class<? extends IEvent> eventType, final byte eventPriority, final T listener) {
 		List<EventExecutor> eventListener = EVENT_LISTENER.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<EventExecutor>());
 		eventListener.add(new EventExecutor(listener, eventPriority));
 		
@@ -84,7 +86,7 @@ public class EventManager {
 			Collections.sort(eventExecutor, new Comparator<EventExecutor>() {
 				@Override
 				public int compare(EventExecutor o1, EventExecutor o2) {
-					return Integer.compare(o2.getPriority().getLevel(), o1.getPriority().getLevel());
+					return Integer.compare(o2.getPriority(), o1.getPriority());
 				}
 			});
 		}
@@ -105,6 +107,26 @@ public class EventManager {
 	
 	public static boolean removeErrorListener(final IErrorListener errorListener) {
 		return ERROR_LISTENER.remove(errorListener);
+	}
+	
+}
+
+class EventExecutor {
+	
+	private final IEventListener eventListener;
+	private final byte priority;
+	
+	public EventExecutor(final IEventListener eventListener, final byte priority) {
+		this.eventListener = eventListener;
+		this.priority = priority;
+	}
+	
+	public IEventListener getEventListener() {
+		return this.eventListener;
+	}
+	
+	public byte getPriority() {
+		return this.priority;
 	}
 	
 }
