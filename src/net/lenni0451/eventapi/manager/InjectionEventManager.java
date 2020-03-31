@@ -22,6 +22,16 @@ import net.lenni0451.eventapi.listener.IErrorListener;
 import net.lenni0451.eventapi.listener.IEventListener;
 import net.lenni0451.eventapi.reflection.EventTarget;
 
+/**
+ * This EventManager type is the best out of two worlds, it is fast and has many features.<br>
+ * This EventManager requires the use of JavaAssist to generate and load classes during the runtime which makes it faster than reflection.<br>
+ * The down point of runtime class generating and loading is that it takes a bit longer to register and unregister event handler.<br>
+ * For even faster speeds use the {@link MinimalEventManager} or for more features use the {@link EventManager}
+ * <br>
+ * Info: This EventManager does not support event handler priorities!
+ * 
+ * @author Lenni0451
+ */
 public class InjectionEventManager {
 
 	private static final Map<Class<? extends IEvent>, IInjectionPipeline> EVENT_PIPELINE = new ConcurrentHashMap<>();

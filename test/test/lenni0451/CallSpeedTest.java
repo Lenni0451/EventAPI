@@ -10,7 +10,7 @@ import net.lenni0451.eventapi.manager.InjectionEventManager;
 import net.lenni0451.eventapi.manager.MinimalEventManager;
 import net.lenni0451.eventapi.reflection.EventTarget;
 
-public class Test {
+public class CallSpeedTest {
 	
 	public static void main(String[] args) throws Throwable {
 		EventManager.addErrorListener(new IErrorListener() {
@@ -194,7 +194,7 @@ public class Test {
 
 		@Override
 		public void onEvent(IEvent event) {
-			Test.testCodeHere(event);
+			CallSpeedTest.testCodeHere(event);
 		}
 		
 	}
@@ -203,12 +203,12 @@ public class Test {
 
 		@EventTarget
 		public void onEvent(ExampleEvent1 event) {
-			Test.testCodeHere(event);
+			CallSpeedTest.testCodeHere(event);
 		}
 		
 		@EventTarget
 		public void onEvent(ExampleEvent2 event) {
-			Test.testCodeHere(event);
+			CallSpeedTest.testCodeHere(event);
 		}
 		
 	}

@@ -17,6 +17,13 @@ import net.lenni0451.eventapi.listener.IEventListener;
 import net.lenni0451.eventapi.reflection.EventTarget;
 import net.lenni0451.eventapi.reflection.ReflectedEventListener;
 
+/**
+ * This EventManager type has the most features but is not the fastest.<br>
+ * It is perfect for average usage which does not require the most performance.<br>
+ * For faster speeds use the {@link InjectEventManager} or the {@link MinimalEventManager}
+ * 
+ * @author Lenni0451
+ */
 public class EventManager {
 	
 	private static final Map<Class<? extends IEvent>, List<EventExecutor>> EVENT_LISTENER = new ConcurrentHashMap<>();

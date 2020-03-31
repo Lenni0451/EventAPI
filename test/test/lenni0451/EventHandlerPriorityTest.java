@@ -6,7 +6,7 @@ import net.lenni0451.eventapi.events.premade.EventCancellable;
 import net.lenni0451.eventapi.manager.EventManager;
 import net.lenni0451.eventapi.reflection.EventTarget;
 
-public class Main {
+public class EventHandlerPriorityTest {
 
 	public static void main(String[] args) throws Throwable {
 		EventManager.register(new Evlistener());
@@ -31,7 +31,7 @@ public class Main {
 
 		@EventTarget(priority = -127)
 		public void onLow2(Event1 e) {
-			System.out.println(127);
+			System.out.println(-127);
 		}
 
 		@EventTarget(priority = EventPriority.MEDIUM)
