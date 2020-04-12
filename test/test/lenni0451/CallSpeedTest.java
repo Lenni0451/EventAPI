@@ -1,5 +1,6 @@
 package test.lenni0451;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 
 import net.lenni0451.eventapi.events.IEvent;
@@ -25,15 +26,31 @@ public class CallSpeedTest {
 				exception.printStackTrace();
 			}
 		});
+		DecimalFormat df = new DecimalFormat();
 
-		EventManager.register(new InterfaceTest());
-		EventManager.register(new ReflectionTest());
+		System.out.println("---------- Register Event Listener ----------");
+		long registerTime;
+		{
+			registerTime = System.nanoTime();
+			EventManager.register(new InterfaceTest());
+			EventManager.register(new ReflectionTest());
+			System.out.println("EventManager: " + df.format(System.nanoTime() - registerTime));
+		}
 
-		MinimalEventManager.register(ExampleEvent1.class, new InterfaceTest());
-		MinimalEventManager.register(ExampleEvent2.class, new InterfaceTest());
+		{
+			registerTime = System.nanoTime();
+			MinimalEventManager.register(ExampleEvent1.class, new InterfaceTest());
+			MinimalEventManager.register(ExampleEvent2.class, new InterfaceTest());
+			System.out.println("MinimalEventManager: " + df.format(System.nanoTime() - registerTime));
+		}
 
-		InjectionEventManager.register(new InterfaceTest());
-		InjectionEventManager.register(new ReflectionTest());
+		{
+			registerTime = System.nanoTime();
+			InjectionEventManager.register(new InterfaceTest());
+			InjectionEventManager.register(new ReflectionTest());
+			System.out.println("InjectionEventManager: " + df.format(System.nanoTime() - registerTime));
+		}
+		System.out.println();
 
 		long start;
 		float middle;
@@ -41,29 +58,29 @@ public class CallSpeedTest {
 		{
 			start = System.nanoTime();
 			EventManager.call(new ExampleEvent1());
-			System.out.println("EventManager (ExampleEvent1): " + (System.nanoTime() - start));
+			System.out.println("EventManager (ExampleEvent1): " + df.format(System.nanoTime() - start));
 
 			start = System.nanoTime();
 			EventManager.call(new ExampleEvent2());
-			System.out.println("EventManager (ExampleEvent2): " + (System.nanoTime() - start));
+			System.out.println("EventManager (ExampleEvent2): " + df.format(System.nanoTime() - start));
 		}
 		{
 			start = System.nanoTime();
 			MinimalEventManager.call(new ExampleEvent1());
-			System.out.println("MinimalEventManager (ExampleEvent1): " + (System.nanoTime() - start));
+			System.out.println("MinimalEventManager (ExampleEvent1): " + df.format(System.nanoTime() - start));
 
 			start = System.nanoTime();
 			MinimalEventManager.call(new ExampleEvent2());
-			System.out.println("MinimalEventManager (ExampleEvent2): " + (System.nanoTime() - start));
+			System.out.println("MinimalEventManager (ExampleEvent2): " + df.format(System.nanoTime() - start));
 		}
 		{
 			start = System.nanoTime();
 			InjectionEventManager.call(new ExampleEvent1());
-			System.out.println("InjectionEventManager (ExampleEvent1): " + (System.nanoTime() - start));
+			System.out.println("InjectionEventManager (ExampleEvent1): " + df.format(System.nanoTime() - start));
 
 			start = System.nanoTime();
 			InjectionEventManager.call(new ExampleEvent2());
-			System.out.println("InjectionEventManager (ExampleEvent2): " + (System.nanoTime() - start));
+			System.out.println("InjectionEventManager (ExampleEvent2): " + df.format(System.nanoTime() - start));
 		}
 		System.out.println();
 		
@@ -76,7 +93,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 1000F;
-			System.out.println("EventManager (ExampleEvent1): " + middle);
+			System.out.println("EventManager (ExampleEvent1): " + df.format(middle));
 
 			middle = 0;
 			for(int i = 0; i < 1000; i++) {
@@ -85,7 +102,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 1000F;
-			System.out.println("EventManager (ExampleEvent2): " + middle);
+			System.out.println("EventManager (ExampleEvent2): " + df.format(middle));
 		}
 		{
 			middle = 0;
@@ -95,7 +112,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 1000F;
-			System.out.println("MinimalEventManager (ExampleEvent1): " + middle);
+			System.out.println("MinimalEventManager (ExampleEvent1): " + df.format(middle));
 
 			middle = 0;
 			for(int i = 0; i < 1000; i++) {
@@ -104,7 +121,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 1000F;
-			System.out.println("MinimalEventManager (ExampleEvent2): " + middle);
+			System.out.println("MinimalEventManager (ExampleEvent2): " + df.format(middle));
 		}
 		{
 			middle = 0;
@@ -114,7 +131,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 1000F;
-			System.out.println("InjectionEventManager (ExampleEvent1): " + middle);
+			System.out.println("InjectionEventManager (ExampleEvent1): " + df.format(middle));
 
 			middle = 0;
 			for(int i = 0; i < 1000; i++) {
@@ -123,7 +140,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 1000F;
-			System.out.println("InjectionEventManager (ExampleEvent2): " + middle);
+			System.out.println("InjectionEventManager (ExampleEvent2): " + df.format(middle));
 		}
 		System.out.println();
 		
@@ -136,7 +153,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 100000F;
-			System.out.println("EventManager (ExampleEvent1): " + middle);
+			System.out.println("EventManager (ExampleEvent1): " + df.format(middle));
 
 			middle = 0;
 			for(int i = 0; i < 100000; i++) {
@@ -145,7 +162,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 100000F;
-			System.out.println("EventManager (ExampleEvent2): " + middle);
+			System.out.println("EventManager (ExampleEvent2): " + df.format(middle));
 		}
 		{
 			middle = 0;
@@ -155,7 +172,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 100000F;
-			System.out.println("MinimalEventManager (ExampleEvent1): " + middle);
+			System.out.println("MinimalEventManager (ExampleEvent1): " + df.format(middle));
 
 			middle = 0;
 			for(int i = 0; i < 100000; i++) {
@@ -164,7 +181,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 100000F;
-			System.out.println("MinimalEventManager (ExampleEvent2): " + middle);
+			System.out.println("MinimalEventManager (ExampleEvent2): " + df.format(middle));
 		}
 		{
 			middle = 0;
@@ -174,7 +191,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 100000F;
-			System.out.println("InjectionEventManager (ExampleEvent1): " + middle);
+			System.out.println("InjectionEventManager (ExampleEvent1): " + df.format(middle));
 
 			middle = 0;
 			for(int i = 0; i < 100000; i++) {
@@ -183,7 +200,7 @@ public class CallSpeedTest {
 				middle += System.nanoTime() - start;
 			}
 			middle /= 100000F;
-			System.out.println("InjectionEventManager (ExampleEvent2): " + middle);
+			System.out.println("InjectionEventManager (ExampleEvent2): " + df.format(middle));
 		}
 	}
 
