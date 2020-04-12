@@ -2,11 +2,14 @@ package net.lenni0451.eventapi.manager;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -65,6 +68,11 @@ public class InjectionEventManager {
 	
 	public static void register(final Object listener) {
 		ClassPool cp = ClassPool.getDefault();
+		try {
+			cp.get(IReflectedListener.class.getName());
+		} catch (Throwable t) {
+			ClassPool.getDefault().insertClassPath(new ClassClassPath(IReflectedListener.class));
+		}
 		
 		for(Method method : listener.getClass().getMethods()) {
 			if(!method.isAnnotationPresent(EventTarget.class)) {
@@ -153,19 +161,10 @@ public class InjectionEventManager {
 	
 	public static void unregister(final Object listener) {
 		for(Map.Entry<Class<? extends IEvent>, IEventListener[]> entry : EVENT_LISTENER.entrySet()) {
-			IEventListener[] eventListener = EVENT_LISTENER.computeIfAbsent(entry.getKey(), c -> new IEventListener[0]);
-			IEventListener[] newEventListener = new IEventListener[eventListener.length - 1];
-			
-			entry.setValue(newEventListener);
-			
-			for(int i = 0, x = 0; i < eventListener.length; i++) {
-				if(!eventListener[i].equals(listener) && (eventListener[i] instanceof IReflectedListener && !((IReflectedListener) eventListener[i]).getInstance().equals(listener))) {
-					newEventListener[x] = eventListener[i];
-					x++;
-				}
-			}
-
-			EVENT_PIPELINE.put(entry.getKey(), rebuildPipeline(newEventListener));
+			List<IEventListener> currentListener = new ArrayList<>();
+			Collections.addAll(currentListener, EVENT_LISTENER.computeIfAbsent(entry.getKey(), c -> new IEventListener[0]));
+			currentListener.removeIf(eventListener -> eventListener.equals(listener) || (eventListener instanceof IReflectedListener && ((IReflectedListener) eventListener).getInstance().equals(listener)));
+			EVENT_PIPELINE.put(entry.getKey(), rebuildPipeline(currentListener.toArray(new IEventListener[0])));
 		}
 	}
 	
