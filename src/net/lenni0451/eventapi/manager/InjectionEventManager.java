@@ -163,7 +163,9 @@ public class InjectionEventManager {
 		for(Map.Entry<Class<? extends IEvent>, IEventListener[]> entry : EVENT_LISTENER.entrySet()) {
 			List<IEventListener> currentListener = new ArrayList<>();
 			Collections.addAll(currentListener, EVENT_LISTENER.computeIfAbsent(entry.getKey(), c -> new IEventListener[0]));
+			int oldSize = currentListener.size();
 			currentListener.removeIf(eventListener -> eventListener.equals(listener) || (eventListener instanceof IReflectedListener && ((IReflectedListener) eventListener).getInstance().equals(listener)));
+			if(oldSize == currentListener.size()) continue; //Skip to rebuild this pipeline because nothing has changed
 			
 			IEventListener[] newEventListener = currentListener.toArray(new IEventListener[0]);
 			EVENT_LISTENER.put(entry.getKey(), newEventListener);
