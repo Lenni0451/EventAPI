@@ -164,7 +164,10 @@ public class InjectionEventManager {
 			List<IEventListener> currentListener = new ArrayList<>();
 			Collections.addAll(currentListener, EVENT_LISTENER.computeIfAbsent(entry.getKey(), c -> new IEventListener[0]));
 			currentListener.removeIf(eventListener -> eventListener.equals(listener) || (eventListener instanceof IReflectedListener && ((IReflectedListener) eventListener).getInstance().equals(listener)));
-			EVENT_PIPELINE.put(entry.getKey(), rebuildPipeline(currentListener.toArray(new IEventListener[0])));
+			
+			IEventListener[] newEventListener = currentListener.toArray(new IEventListener[0]);
+			EVENT_LISTENER.put(entry.getKey(), newEventListener);
+			EVENT_PIPELINE.put(entry.getKey(), rebuildPipeline(newEventListener));
 		}
 	}
 	
