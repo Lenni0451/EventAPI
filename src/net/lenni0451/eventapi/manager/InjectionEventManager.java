@@ -37,6 +37,7 @@ import net.lenni0451.eventapi.reflection.EventTarget;
  */
 public class InjectionEventManager {
 
+	private static final Object callLock = new Object();
 	private static final Map<Class<? extends IEvent>, IInjectionPipeline> EVENT_PIPELINE = new ConcurrentHashMap<>();
 	private static final Map<Class<? extends IEvent>, IEventListener[]> EVENT_LISTENER = new ConcurrentHashMap<>();
 	private static final List<IErrorListener> ERROR_LISTENER = new CopyOnWriteArrayList<>();
@@ -47,15 +48,17 @@ public class InjectionEventManager {
 	
 	
 	public static void call(final IEvent event) {
-		if(event != null && EVENT_PIPELINE.containsKey(event.getClass())) {
-			try {
-				EVENT_PIPELINE.get(event.getClass()).call(event);
-				if(EVENT_PIPELINE.containsKey(IEvent.class)) EVENT_PIPELINE.get(IEvent.class).call(event);
-			} catch (Throwable e) {
-				if(ERROR_LISTENER.isEmpty()) {
-					throw new RuntimeException(e);
-				} else {
-					ERROR_LISTENER.forEach(errorListener -> errorListener.catchException(e));
+		synchronized (callLock) {
+			if(event != null && EVENT_PIPELINE.containsKey(event.getClass())) {
+				try {
+					EVENT_PIPELINE.get(event.getClass()).call(event);
+					if(EVENT_PIPELINE.containsKey(IEvent.class)) EVENT_PIPELINE.get(IEvent.class).call(event);
+				} catch (Throwable e) {
+					if(ERROR_LISTENER.isEmpty()) {
+						throw new RuntimeException(e);
+					} else {
+						ERROR_LISTENER.forEach(errorListener -> errorListener.catchException(e));
+					}
 				}
 			}
 		}
@@ -160,16 +163,18 @@ public class InjectionEventManager {
 	
 	
 	public static void unregister(final Object listener) {
-		for(Map.Entry<Class<? extends IEvent>, IEventListener[]> entry : EVENT_LISTENER.entrySet()) {
-			List<IEventListener> currentListener = new ArrayList<>();
-			Collections.addAll(currentListener, EVENT_LISTENER.computeIfAbsent(entry.getKey(), c -> new IEventListener[0]));
-			int oldSize = currentListener.size();
-			currentListener.removeIf(eventListener -> eventListener.equals(listener) || (eventListener instanceof IReflectedListener && ((IReflectedListener) eventListener).getInstance().equals(listener)));
-			if(oldSize == currentListener.size()) continue; //Skip to rebuild this pipeline because nothing has changed
-			
-			IEventListener[] newEventListener = currentListener.toArray(new IEventListener[0]);
-			EVENT_LISTENER.put(entry.getKey(), newEventListener);
-			EVENT_PIPELINE.put(entry.getKey(), rebuildPipeline(newEventListener));
+		synchronized (callLock) {
+			for(Map.Entry<Class<? extends IEvent>, IEventListener[]> entry : EVENT_LISTENER.entrySet()) {
+				List<IEventListener> currentListener = new ArrayList<>();
+				Collections.addAll(currentListener, EVENT_LISTENER.computeIfAbsent(entry.getKey(), c -> new IEventListener[0]));
+				int oldSize = currentListener.size();
+				currentListener.removeIf(eventListener -> eventListener.equals(listener) || (eventListener instanceof IReflectedListener && ((IReflectedListener) eventListener).getInstance().equals(listener)));
+				if(oldSize == currentListener.size()) continue; //Skip to rebuild this pipeline because nothing has changed
+				
+				IEventListener[] newEventListener = currentListener.toArray(new IEventListener[0]);
+				EVENT_LISTENER.put(entry.getKey(), newEventListener);
+				EVENT_PIPELINE.put(entry.getKey(), rebuildPipeline(newEventListener));
+			}
 		}
 	}
 	
