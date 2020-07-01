@@ -3,7 +3,9 @@ package net.lenni0451.eventapi.manager;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,12 +28,10 @@ import net.lenni0451.eventapi.listener.IEventListener;
 import net.lenni0451.eventapi.reflection.EventTarget;
 
 /**
- * This EventManager type is the best out of two worlds, it is fast and has many features.<br>
+ * This EventManager type is the best out of them all. It is fast and has all features.<br>
  * This EventManager requires the use of JavaAssist to generate and load classes during the runtime which makes it faster than reflection.<br>
  * The down point of runtime class generating and loading is that it takes a bit longer to register and unregister event handler.<br>
- * For even faster speeds use the {@link MinimalEventManager} or for more features use the {@link EventManager}
- * <br>
- * Info: This EventManager does not support event handler priorities!
+ * For even faster speeds use the {@link MinimalEventManager} or for no extra library use the {@link EventManager}
  * 
  * @author Lenni0451
  */
@@ -81,6 +81,7 @@ public class InjectionEventManager {
 			if(!method.isAnnotationPresent(EventTarget.class)) {
 				continue;
 			}
+			EventTarget methodAnnotation = method.getDeclaredAnnotation(EventTarget.class);
 			
 			Class<?>[] methodArguments = method.getParameterTypes();
 			if(methodArguments.length == 1 && IEvent.class.isAssignableFrom(methodArguments[0]) && Modifier.isPublic(method.getModifiers()) && !Modifier.isStatic(method.getModifiers())) {
@@ -120,10 +121,16 @@ public class InjectionEventManager {
 					throw new RuntimeException("Could not create new on event method", e);
 				}
 				try {
-					CtMethod onEventMethod = CtNewMethod.make(cp.get(Object.class.getName()), cp.get(IReflectedListener.class.getName()).getDeclaredMethods()[0].getName(), new CtClass[0], new CtClass[0], "{return this.instance;}", newListener);
-					newListener.addMethod(onEventMethod);
+					CtMethod getInstanceMethod = CtNewMethod.make(cp.get(Object.class.getName()), cp.get(IReflectedListener.class.getName()).getDeclaredMethods()[0].getName(), new CtClass[0], new CtClass[0], "{return this.instance;}", newListener);
+					newListener.addMethod(getInstanceMethod);
 				} catch (Exception e) {
 					throw new RuntimeException("Could not create new get instance method", e);
+				}
+				try {
+					CtMethod getPriorityMethod = CtNewMethod.make(CtClass.byteType, cp.get(IEventListener.class.getName()).getDeclaredMethods()[1].getName(), new CtClass[0], new CtClass[0], "{return (byte) " + methodAnnotation.priority() + ";}", newListener);
+					newListener.addMethod(getPriorityMethod);
+				} catch (Exception e) {
+					throw new RuntimeException("Could not create new get priority method", e);
 				}
 				
 				Class<?> newListenerClass;
@@ -157,6 +164,13 @@ public class InjectionEventManager {
 				newEventListener[i] = listener;
 			}
 		}
+		
+		Arrays.sort(newEventListener, new Comparator<IEventListener>() {
+			@Override
+			public int compare(IEventListener o1, IEventListener o2) {
+				return Byte.compare(o2.getPriority(), o1.getPriority());
+			}
+		});
 		
 		EVENT_PIPELINE.put(eventType, rebuildPipeline(newEventListener));
 	}
