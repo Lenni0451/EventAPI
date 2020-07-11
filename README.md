@@ -3,7 +3,7 @@ A feature rich and easy to use EventAPI for Java.
 It has 3 different EventManager types:
  - EventManager
 	 - The most common, Reflection based EventManager.
- - InjectionEventManaher
+ - InjectionEventManager
 	 - An EventManager uses Javassist to generate the Event pipelines and listeners during runtime. It is fast because it has no reflection but has all the features you ever need. It is the best one in my opinion.
  - MinimalEventManager
 	 - It uses Interfaces for handling event calls. It is actually faster than the InjectionEventManager but has no features at all. It is the best one if you don't really care about features but need maximum speed.
