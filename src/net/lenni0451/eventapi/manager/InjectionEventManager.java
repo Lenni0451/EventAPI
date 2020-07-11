@@ -21,6 +21,7 @@ import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
 import net.lenni0451.eventapi.events.IEvent;
+import net.lenni0451.eventapi.events.types.IStoppable;
 import net.lenni0451.eventapi.injection.IInjectionPipeline;
 import net.lenni0451.eventapi.injection.IReflectedListener;
 import net.lenni0451.eventapi.listener.IErrorListener;
@@ -227,6 +228,7 @@ public class InjectionEventManager {
 		for(int i = 0; i < eventListener.length; i++) {
 			try {
 				sourceBuilder.append("listener[" + i + "]." + cp.get(IEventListener.class.getName()).getDeclaredMethods()[0].getName() + "($1);");
+				sourceBuilder.append("if($1 instanceof " + IStoppable.class.getName() + " && ((" + IStoppable.class.getName() + ") $1).isStopped()) return;");
 			} catch (NotFoundException e) {
 				if(ERROR_LISTENER.isEmpty()) {
 					throw new RuntimeException(e);
