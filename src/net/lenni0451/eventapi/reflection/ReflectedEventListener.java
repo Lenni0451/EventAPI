@@ -1,9 +1,9 @@
 package net.lenni0451.eventapi.reflection;
 
-import java.lang.reflect.Method;
-
 import net.lenni0451.eventapi.events.IEvent;
 import net.lenni0451.eventapi.listener.IEventListener;
+
+import java.lang.reflect.Method;
 
 public class ReflectedEventListener implements IEventListener {
 	
@@ -24,7 +24,7 @@ public class ReflectedEventListener implements IEventListener {
 	@Override
 	public void onEvent(IEvent event) {
 		try {
-			method.invoke(this.callInstance, new Object[] {eventClass.cast(event)});
+			method.invoke(this.callInstance, eventClass.cast(event));
 		} catch (Throwable e) {
 			throw new RuntimeException("Error invoking reflected method", e);
 		}

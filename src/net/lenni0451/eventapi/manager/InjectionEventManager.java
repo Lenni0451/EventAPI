@@ -1,25 +1,6 @@
 package net.lenni0451.eventapi.manager;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import javassist.ClassClassPath;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewConstructor;
-import javassist.CtNewMethod;
-import javassist.NotFoundException;
+import javassist.*;
 import net.lenni0451.eventapi.events.IEvent;
 import net.lenni0451.eventapi.events.types.IStoppable;
 import net.lenni0451.eventapi.injection.IInjectionPipeline;
@@ -27,6 +8,12 @@ import net.lenni0451.eventapi.injection.IReflectedListener;
 import net.lenni0451.eventapi.listener.IErrorListener;
 import net.lenni0451.eventapi.listener.IEventListener;
 import net.lenni0451.eventapi.reflection.EventTarget;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This EventManager type is the best out of them all. It is fast and has all features.<br>
@@ -166,12 +153,7 @@ public class InjectionEventManager {
 			}
 		}
 		
-		Arrays.sort(newEventListener, new Comparator<IEventListener>() {
-			@Override
-			public int compare(IEventListener o1, IEventListener o2) {
-				return Byte.compare(o2.getPriority(), o1.getPriority());
-			}
-		});
+		Arrays.sort(newEventListener, (o1, o2) -> Byte.compare(o2.getPriority(), o1.getPriority()));
 		
 		EVENT_PIPELINE.put(eventType, rebuildPipeline(newEventListener));
 	}

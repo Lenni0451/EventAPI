@@ -1,12 +1,12 @@
 package net.lenni0451.eventapi.manager;
 
+import net.lenni0451.eventapi.events.IEvent;
+import net.lenni0451.eventapi.listener.IEventListener;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import net.lenni0451.eventapi.events.IEvent;
-import net.lenni0451.eventapi.listener.IEventListener;
 
 /**
  * This EventManager type is reduced to the minimal amount of code needed to handle event calls.<br>
@@ -35,7 +35,7 @@ public class MinimalEventManager {
 	}
 	
 	public static <T extends IEventListener> void unregister(final T listener) {
-		EVENT_LISTENER.entrySet().forEach(entry -> entry.getValue().removeIf(l -> l.equals(listener)));
+		EVENT_LISTENER.forEach((key, value) -> value.removeIf(l -> l.equals(listener)));
 	}
 	
 }
