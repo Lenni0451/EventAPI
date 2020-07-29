@@ -1,11 +1,11 @@
 package test.lenni0451;
 
 import net.lenni0451.eventapi.events.EventPriority;
+import net.lenni0451.eventapi.events.EventTarget;
 import net.lenni0451.eventapi.events.IEvent;
 import net.lenni0451.eventapi.events.premade.EventCancellable;
 import net.lenni0451.eventapi.manager.EventManager;
 import net.lenni0451.eventapi.manager.InjectionEventManager;
-import net.lenni0451.eventapi.reflection.EventTarget;
 
 public class EventHandlerPriorityTest {
 

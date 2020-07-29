@@ -1,13 +1,13 @@
 package net.lenni0451.eventapi.manager;
 
 import javassist.*;
+import net.lenni0451.eventapi.events.EventTarget;
 import net.lenni0451.eventapi.events.IEvent;
 import net.lenni0451.eventapi.events.types.IStoppable;
+import net.lenni0451.eventapi.injection.IInjectedListener;
 import net.lenni0451.eventapi.injection.IInjectionPipeline;
-import net.lenni0451.eventapi.injection.IReflectedListener;
 import net.lenni0451.eventapi.listener.IErrorListener;
 import net.lenni0451.eventapi.listener.IEventListener;
-import net.lenni0451.eventapi.reflection.EventTarget;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -60,9 +60,9 @@ public class InjectionEventManager {
 	public static void register(final Object listener) {
 		ClassPool cp = ClassPool.getDefault();
 		try {
-			cp.get(IReflectedListener.class.getName());
+			cp.get(IInjectedListener.class.getName());
 		} catch (Throwable t) {
-			ClassPool.getDefault().insertClassPath(new ClassClassPath(IReflectedListener.class));
+			ClassPool.getDefault().insertClassPath(new ClassClassPath(IInjectedListener.class));
 		}
 		
 		for(Method method : listener.getClass().getMethods()) {
@@ -80,7 +80,7 @@ public class InjectionEventManager {
 				
 				CtClass newListener = cp.makeClass("InjectionListener_" + System.nanoTime());
 				try {
-					newListener.addInterface(cp.get(IReflectedListener.class.getName()));
+					newListener.addInterface(cp.get(IInjectedListener.class.getName()));
 				} catch (Throwable e) {
 					throw new RuntimeException("Class could not implement IReflectedListener", e);
 				}
@@ -109,7 +109,7 @@ public class InjectionEventManager {
 					throw new RuntimeException("Could not create new on event method", e);
 				}
 				try {
-					CtMethod getInstanceMethod = CtNewMethod.make(cp.get(Object.class.getName()), cp.get(IReflectedListener.class.getName()).getDeclaredMethods()[0].getName(), new CtClass[0], new CtClass[0], "{return this.instance;}", newListener);
+					CtMethod getInstanceMethod = CtNewMethod.make(cp.get(Object.class.getName()), cp.get(IInjectedListener.class.getName()).getDeclaredMethods()[0].getName(), new CtClass[0], new CtClass[0], "{return this.instance;}", newListener);
 					newListener.addMethod(getInstanceMethod);
 				} catch (Exception e) {
 					throw new RuntimeException("Could not create new get instance method", e);
@@ -165,7 +165,7 @@ public class InjectionEventManager {
 				List<IEventListener> currentListener = new ArrayList<>();
 				Collections.addAll(currentListener, EVENT_LISTENER.computeIfAbsent(entry.getKey(), c -> new IEventListener[0]));
 				int oldSize = currentListener.size();
-				currentListener.removeIf(eventListener -> eventListener.equals(listener) || (eventListener instanceof IReflectedListener && ((IReflectedListener) eventListener).getInstance().equals(listener)));
+				currentListener.removeIf(eventListener -> eventListener.equals(listener) || (eventListener instanceof IInjectedListener && ((IInjectedListener) eventListener).getInstance().equals(listener)));
 				if(oldSize == currentListener.size()) continue; //Skip to rebuild this pipeline because nothing has changed
 				
 				IEventListener[] newEventListener = currentListener.toArray(new IEventListener[0]);

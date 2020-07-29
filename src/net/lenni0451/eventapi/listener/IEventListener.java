@@ -4,7 +4,7 @@ import net.lenni0451.eventapi.events.IEvent;
 
 public interface IEventListener {
 	
-	public void onEvent(IEvent event);
-	public default byte getPriority() {return 0;}
+	void onEvent(IEvent event);
+	default byte getPriority() {return 0;}
 	
 }

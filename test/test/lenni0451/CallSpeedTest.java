@@ -1,15 +1,15 @@
 package test.lenni0451;
 
-import java.text.DecimalFormat;
-import java.util.HashMap;
-
+import net.lenni0451.eventapi.events.EventTarget;
 import net.lenni0451.eventapi.events.IEvent;
 import net.lenni0451.eventapi.listener.IErrorListener;
 import net.lenni0451.eventapi.listener.IEventListener;
 import net.lenni0451.eventapi.manager.EventManager;
 import net.lenni0451.eventapi.manager.InjectionEventManager;
 import net.lenni0451.eventapi.manager.MinimalEventManager;
-import net.lenni0451.eventapi.reflection.EventTarget;
+
+import java.text.DecimalFormat;
+import java.util.HashMap;
 
 public class CallSpeedTest {
 	

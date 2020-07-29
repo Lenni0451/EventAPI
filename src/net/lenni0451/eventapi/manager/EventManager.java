@@ -1,11 +1,11 @@
 package net.lenni0451.eventapi.manager;
 
 import net.lenni0451.eventapi.events.EventPriority;
+import net.lenni0451.eventapi.events.EventTarget;
 import net.lenni0451.eventapi.events.IEvent;
 import net.lenni0451.eventapi.events.types.IStoppable;
 import net.lenni0451.eventapi.listener.IErrorListener;
 import net.lenni0451.eventapi.listener.IEventListener;
-import net.lenni0451.eventapi.reflection.EventTarget;
 import net.lenni0451.eventapi.reflection.ReflectedEventListener;
 
 import java.lang.reflect.Method;
