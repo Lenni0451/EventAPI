@@ -1,4 +1,4 @@
-package net.lenni0451.eventapi.injection;
+package net.lenni0451.eventapi.injection.javassist;
 
 import net.lenni0451.eventapi.listener.IEventListener;
 

@@ -2,8 +2,8 @@ package test.lenni0451;
 
 import net.lenni0451.eventapi.events.EventTarget;
 import net.lenni0451.eventapi.events.IEvent;
-import net.lenni0451.eventapi.listener.IErrorListener;
 import net.lenni0451.eventapi.listener.IEventListener;
+import net.lenni0451.eventapi.manager.ASMEventManager;
 import net.lenni0451.eventapi.manager.EventManager;
 import net.lenni0451.eventapi.manager.InjectionEventManager;
 import net.lenni0451.eventapi.manager.MinimalEventManager;
@@ -14,18 +14,9 @@ import java.util.HashMap;
 public class CallSpeedTest {
 	
 	public static void main(String[] args) throws Throwable {
-		EventManager.addErrorListener(new IErrorListener() {
-			@Override
-			public void catchException(Throwable exception) {
-				exception.printStackTrace();
-			}
-		});
-		InjectionEventManager.addErrorListener(new IErrorListener() {
-			@Override
-			public void catchException(Throwable exception) {
-				exception.printStackTrace();
-			}
-		});
+		EventManager.addErrorListener(Throwable::printStackTrace);
+		InjectionEventManager.addErrorListener(Throwable::printStackTrace);
+		ASMEventManager.addErrorListener(Throwable::printStackTrace);
 		DecimalFormat df = new DecimalFormat();
 
 		System.out.println("---------- Register Event Listener ----------");
@@ -49,6 +40,13 @@ public class CallSpeedTest {
 			InjectionEventManager.register(new InterfaceTest());
 			InjectionEventManager.register(new ReflectionTest());
 			System.out.println("InjectionEventManager: " + df.format(System.nanoTime() - registerTime));
+		}
+
+		{
+			registerTime = System.nanoTime();
+			ASMEventManager.register(new InterfaceTest());
+			ASMEventManager.register(new ReflectionTest());
+			System.out.println("ASMEventManager: " + df.format(System.nanoTime() - registerTime));
 		}
 		System.out.println();
 
@@ -81,6 +79,15 @@ public class CallSpeedTest {
 			start = System.nanoTime();
 			InjectionEventManager.call(new ExampleEvent2());
 			System.out.println("InjectionEventManager (ExampleEvent2): " + df.format(System.nanoTime() - start));
+		}
+		{
+			start = System.nanoTime();
+			ASMEventManager.call(new ExampleEvent1());
+			System.out.println("ASMEventManager (ExampleEvent1): " + df.format(System.nanoTime() - start));
+
+			start = System.nanoTime();
+			ASMEventManager.call(new ExampleEvent2());
+			System.out.println("ASMEventManager (ExampleEvent2): " + df.format(System.nanoTime() - start));
 		}
 		System.out.println();
 		
@@ -142,6 +149,25 @@ public class CallSpeedTest {
 			middle /= 1000F;
 			System.out.println("InjectionEventManager (ExampleEvent2): " + df.format(middle));
 		}
+		{
+			middle = 0;
+			for(int i = 0; i < 1000; i++) {
+				start = System.nanoTime();
+				ASMEventManager.call(new ExampleEvent1());
+				middle += System.nanoTime() - start;
+			}
+			middle /= 1000F;
+			System.out.println("ASMEventManager (ExampleEvent1): " + df.format(middle));
+
+			middle = 0;
+			for(int i = 0; i < 1000; i++) {
+				start = System.nanoTime();
+				ASMEventManager.call(new ExampleEvent2());
+				middle += System.nanoTime() - start;
+			}
+			middle /= 1000F;
+			System.out.println("ASMEventManager (ExampleEvent2): " + df.format(middle));
+		}
 		System.out.println();
 		
 		System.out.println("---------- 100000 call ----------");
@@ -201,6 +227,25 @@ public class CallSpeedTest {
 			}
 			middle /= 100000F;
 			System.out.println("InjectionEventManager (ExampleEvent2): " + df.format(middle));
+		}
+		{
+			middle = 0;
+			for(int i = 0; i < 100000; i++) {
+				start = System.nanoTime();
+				ASMEventManager.call(new ExampleEvent1());
+				middle += System.nanoTime() - start;
+			}
+			middle /= 100000F;
+			System.out.println("ASMEventManager (ExampleEvent1): " + df.format(middle));
+
+			middle = 0;
+			for(int i = 0; i < 100000; i++) {
+				start = System.nanoTime();
+				ASMEventManager.call(new ExampleEvent2());
+				middle += System.nanoTime() - start;
+			}
+			middle /= 100000F;
+			System.out.println("ASMEventManager (ExampleEvent2): " + df.format(middle));
 		}
 	}
 
