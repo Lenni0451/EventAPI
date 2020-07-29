@@ -15,13 +15,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * This EventManager type has the most features but is not the fastest.<br>
- * It is perfect for average usage which does not require the most performance.<br>
- * For faster speeds use the {@link InjectEventManager} or the {@link MinimalEventManager}
- *
- * @author Lenni0451
- */
 public class EventManager {
 
     private static final Map<Class<? extends IEvent>, List<EventExecutor>> EVENT_LISTENER = new ConcurrentHashMap<>();

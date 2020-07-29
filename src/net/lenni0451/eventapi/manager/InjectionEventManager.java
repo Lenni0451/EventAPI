@@ -4,8 +4,8 @@ import javassist.*;
 import net.lenni0451.eventapi.events.EventTarget;
 import net.lenni0451.eventapi.events.IEvent;
 import net.lenni0451.eventapi.events.types.IStoppable;
-import net.lenni0451.eventapi.injection.IInjectedListener;
-import net.lenni0451.eventapi.injection.IInjectionPipeline;
+import net.lenni0451.eventapi.injection.javassist.IInjectedListener;
+import net.lenni0451.eventapi.injection.javassist.IInjectionPipeline;
 import net.lenni0451.eventapi.listener.IErrorListener;
 import net.lenni0451.eventapi.listener.IEventListener;
 
@@ -15,14 +15,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * This EventManager type is the best out of them all. It is fast and has all features.<br>
- * This EventManager requires the use of JavaAssist to generate and load classes during the runtime which makes it faster than reflection.<br>
- * The down point of runtime class generating and loading is that it takes a bit longer to register and unregister event handler.<br>
- * For even faster speeds use the {@link MinimalEventManager} or for no extra library use the {@link EventManager}
- * 
- * @author Lenni0451
- */
 public class InjectionEventManager {
 
 	private static final Object callLock = new Object();

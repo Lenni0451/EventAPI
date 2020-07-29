@@ -8,14 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * This EventManager type is reduced to the minimal amount of code needed to handle event calls.<br>
- * It is extremly fast (faster than the other two EventManager) but has the least amount of features.<br>
- * You can use this if you need the maximum amount of speed and not many features.<br>
- * For more features but slower speeds check out the {@link EventManager} or the {@link InjectionEventManager}.
- * 
- * @author User
- */
 public class MinimalEventManager {
 	
 	private static final Map<Class<? extends IEvent>, List<IEventListener>> EVENT_LISTENER = new ConcurrentHashMap<>();
