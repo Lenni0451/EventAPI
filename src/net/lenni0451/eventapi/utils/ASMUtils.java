@@ -5,7 +5,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.lang.reflect.Method;
-import java.net.URLClassLoader;
 
 public class ASMUtils {
 
@@ -23,8 +22,6 @@ public class ASMUtils {
     }
 
     public static Class<?> defineClass(final ClassLoader classLoader, final ClassNode classNode) throws Throwable {
-        if(!(classLoader instanceof URLClassLoader)) throw new IllegalStateException("ClassLoader is not instance of URLClassLoader");
-
         final Method defineClass = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
         defineClass.setAccessible(true);
         final byte[] classBytes = ASMUtils.toBytes(classNode);
