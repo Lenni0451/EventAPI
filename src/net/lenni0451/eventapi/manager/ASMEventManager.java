@@ -118,7 +118,7 @@ public class ASMEventManager {
 
         ClassNode newHandlerNode = new ClassNode();
         newHandlerNode.visit(52, ACC_PUBLIC + ACC_SUPER, "eventhandler/" + (event.getSimpleName() + "EventHandler" + System.nanoTime()), null, "java/lang/Object", new String[]{IInjectionEventHandler.class.getName().replace(".", "/")});
-        newHandlerNode.visitSource("You're too slow!.sk", null);
+        newHandlerNode.visitSource("EventAPI by Lenni0451", null);
 
         {
             int index = 0;
