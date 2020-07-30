@@ -4,19 +4,19 @@ import net.lenni0451.eventapi.events.EventPriority;
 import net.lenni0451.eventapi.events.EventTarget;
 import net.lenni0451.eventapi.events.IEvent;
 import net.lenni0451.eventapi.events.premade.EventCancellable;
+import net.lenni0451.eventapi.manager.ASMEventManager;
 import net.lenni0451.eventapi.manager.EventManager;
-import net.lenni0451.eventapi.manager.InjectionEventManager;
 
 public class EventHandlerPriorityTest {
 
 	public static void main(String[] args) throws Throwable {
 		EventManager.register(new Evlistener());
-		InjectionEventManager.register(new Evlistener());
+		ASMEventManager.register(new Evlistener());
 
 		System.out.println("------ EventManager ------");
 		EventManager.call(new Event1());
-		System.out.println("------ InjectionEventManager ------");
-		InjectionEventManager.call(new Event1());
+		System.out.println("------ ASMEventManager ------");
+        ASMEventManager.call(new Event1());
 	}
 	
 	public static class Event1 implements IEvent {}
