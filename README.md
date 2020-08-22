@@ -1,6 +1,6 @@
 # EventAPI
 A feature rich and easy to use EventAPI for Java.  
-It has 3 different EventManager types:
+It has 4 different EventManager types:
  - EventManager
 	 - The most common, Reflection based EventManager.
  - InjectionEventManager
