@@ -102,24 +102,25 @@ public class EventManager {
         return ERROR_LISTENER.remove(errorListener);
     }
 
-}
 
-class EventExecutor {
+    private static class EventExecutor {
 
-    private final IEventListener eventListener;
-    private final byte priority;
+        private final IEventListener eventListener;
+        private final byte priority;
 
-    public EventExecutor(final IEventListener eventListener, final byte priority) {
-        this.eventListener = eventListener;
-        this.priority = priority;
-    }
+        public EventExecutor(final IEventListener eventListener, final byte priority) {
+            this.eventListener = eventListener;
+            this.priority = priority;
+        }
 
-    public IEventListener getEventListener() {
-        return this.eventListener;
-    }
+        public IEventListener getEventListener() {
+            return this.eventListener;
+        }
 
-    public byte getPriority() {
-        return this.priority;
+        public byte getPriority() {
+            return this.priority;
+        }
+
     }
 
 }
