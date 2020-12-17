@@ -10,6 +10,7 @@ import org.objectweb.asm.tree.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,9 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class ASMEventManager {
 
+    /**
+     * The class loader used to load the event handler class
+     */
     public static ClassLoader CLASS_LOADER = Thread.currentThread().getContextClassLoader();
 
     private static final Map<Class<? extends IEvent>, Map<Object, List<Method>>> TRACKED_LISTENER = new ConcurrentHashMap<>();
@@ -46,10 +50,17 @@ public class ASMEventManager {
 
     public static void register(final Object eventListener) {
         List<Class<? extends IEvent>> updatedEvents = new ArrayList<>();
+        final boolean isStaticCall = eventListener instanceof Class<?>;
 
-        for (Method method : eventListener.getClass().getDeclaredMethods()) {
+        for (Method method : (isStaticCall ? ((Class<?>) eventListener) : (eventListener.getClass())).getDeclaredMethods()) {
             EventTarget eventTarget = method.getDeclaredAnnotation(EventTarget.class);
             if (eventTarget != null && method.getParameterTypes().length == 1 && IEvent.class.isAssignableFrom(method.getParameterTypes()[0])) {
+                if (isStaticCall && !Modifier.isStatic(method.getModifiers())) {
+                    continue; //When registering a static class only get static methods
+                } else if (!isStaticCall && Modifier.isStatic(method.getModifiers())) {
+                    continue; //When registering an instance only get non static classes
+                }
+
                 Class<? extends IEvent> eventClass = (Class<? extends IEvent>) method.getParameterTypes()[0];
                 TRACKED_LISTENER.computeIfAbsent(eventClass, eventClazz -> new ConcurrentHashMap<>()).computeIfAbsent(eventListener, listener -> new CopyOnWriteArrayList<>()).add(method);
                 updatedEvents.add(eventClass);
@@ -61,8 +72,9 @@ public class ASMEventManager {
 
     public static void unregister(final Object eventListener) {
         List<Class<? extends IEvent>> updatedEvents = new ArrayList<>();
+        final boolean isStaticCall = eventListener instanceof Class<?>;
 
-        for (Method method : eventListener.getClass().getDeclaredMethods()) {
+        for (Method method : (isStaticCall ? ((Class<?>) eventListener) : (eventListener.getClass())).getDeclaredMethods()) {
             EventTarget eventTarget = method.getDeclaredAnnotation(EventTarget.class);
             if (eventTarget != null && method.getParameterTypes().length == 1 && IEvent.class.isAssignableFrom(method.getParameterTypes()[0])) {
                 Class<? extends IEvent> eventClass = (Class<? extends IEvent>) method.getParameterTypes()[0];
@@ -146,11 +158,17 @@ public class ASMEventManager {
             InsnList instructions = new InsnList();
 
             for (Map.Entry<Method, Object> entry : methods) {
-                instructions.add(new VarInsnNode(ALOAD, 0));
-                instructions.add(new FieldInsnNode(GETFIELD, newHandlerNode.name, instanceMappings.get(entry.getValue()), "L" + entry.getValue().getClass().getName().replace(".", "/") + ";"));
-                instructions.add(new VarInsnNode(ALOAD, 1));
-                instructions.add(new TypeInsnNode(CHECKCAST, event.getName().replace(".", "/")));
-                instructions.add(new MethodInsnNode(INVOKEVIRTUAL, entry.getValue().getClass().getName().replace(".", "/"), entry.getKey().getName(), "(L" + event.getName().replace(".", "/") + ";)V"));
+                if (Modifier.isStatic(entry.getKey().getModifiers())) {
+                    instructions.add(new VarInsnNode(ALOAD, 1));
+                    instructions.add(new TypeInsnNode(CHECKCAST, event.getName().replace(".", "/")));
+                    instructions.add(new MethodInsnNode(INVOKESTATIC, (entry.getValue() instanceof Class<?> ? (Class<?>) entry.getValue() : entry.getValue().getClass()).getName().replace(".", "/"), entry.getKey().getName(), "(L" + event.getName().replace(".", "/") + ";)V"));
+                } else {
+                    instructions.add(new VarInsnNode(ALOAD, 0));
+                    instructions.add(new FieldInsnNode(GETFIELD, newHandlerNode.name, instanceMappings.get(entry.getValue()), "L" + entry.getValue().getClass().getName().replace(".", "/") + ";"));
+                    instructions.add(new VarInsnNode(ALOAD, 1));
+                    instructions.add(new TypeInsnNode(CHECKCAST, event.getName().replace(".", "/")));
+                    instructions.add(new MethodInsnNode(INVOKEVIRTUAL, entry.getValue().getClass().getName().replace(".", "/"), entry.getKey().getName(), "(L" + event.getName().replace(".", "/") + ";)V"));
+                }
 
                 if (IStoppable.class.isAssignableFrom(event)) {
                     instructions.add(new VarInsnNode(ALOAD, 1));
