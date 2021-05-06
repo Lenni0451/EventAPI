@@ -20,8 +20,8 @@ public class EventManager {
     private static final Map<Class<? extends IEvent>, List<EventExecutor>> EVENT_LISTENER = new ConcurrentHashMap<>();
     private static final List<IErrorListener> ERROR_LISTENER = new CopyOnWriteArrayList<>();
 
-    public static void call(final IEvent event) {
-        if (event == null) return;
+    public static <T extends IEvent> T call(final T event) {
+        if (event == null) return null;
 
         List<EventExecutor> eventListener = new ArrayList<>();
         if (EVENT_LISTENER.containsKey(event.getClass())) eventListener.addAll(EVENT_LISTENER.get(event.getClass()));
@@ -41,6 +41,7 @@ public class EventManager {
                 break;
             }
         }
+        return event;
     }
 
 

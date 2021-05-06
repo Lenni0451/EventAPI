@@ -32,7 +32,7 @@ public class ASMEventManager {
     private static final List<IErrorListener> ERROR_LISTENER = new CopyOnWriteArrayList<>();
 
 
-    public static void call(final IEvent event) {
+    public static <T extends IEvent> T call(final T event) {
         if (event != null && EVENT_HANDLER.containsKey(event.getClass())) {
             try {
                 EVENT_HANDLER.get(event.getClass()).call(event);
@@ -45,6 +45,7 @@ public class ASMEventManager {
                 }
             }
         }
+        return event;
     }
 
 
